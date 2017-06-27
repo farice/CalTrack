@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
-class MainScreenViewController: UIViewController, MapDetailAnimationManager {
+class MainScreenViewController: UIViewController, MapDetailAnimationManager, GADBannerViewDelegate {
     @IBOutlet var detailViewHeightConstraint: NSLayoutConstraint!
     
     private let DETAIL_VIEW_HEIGHT : CGFloat = 100.0
@@ -18,7 +19,12 @@ class MainScreenViewController: UIViewController, MapDetailAnimationManager {
 
     @IBOutlet var detailContainerView: UIView!
     
+    @IBOutlet weak var detailContainerBottom: NSLayoutConstraint!
+    
+    var mapVC : MapViewController?
     var mapDetailVC : MapDetailViewController?
+    
+    var bannerView: GADBannerView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,8 +32,32 @@ class MainScreenViewController: UIViewController, MapDetailAnimationManager {
         for vc in self.childViewControllers {
             if let detailVC = vc as? MapDetailViewController {
                 self.mapDetailVC = detailVC
-                return
+            } else if let mapVC = vc as? MapViewController {
+                self.mapVC = mapVC
             }
+        }
+        
+        self.configureAd()
+    }
+    
+    func moveAdToBottom() {
+        bannerView.frame.origin.y = self.view.frame.height - bannerView.frame.height
+        
+        self.detailContainerBottom.constant = bannerView.frame.height
+    }
+    
+    func configureAd() {
+        DispatchQueue.main.async {
+            self.bannerView = GADBannerView(adSize: kGADAdSizeFullBanner)
+            self.view.addSubview(self.bannerView)
+            self.bannerView.adUnitID = "ca-app-pub-3104334766866306/4572484271"// "ca-app-pub-3940256099942544/2934735716"
+            self.bannerView.rootViewController = self
+            self.bannerView.delegate = self
+            let request = GADRequest()
+            #if DEBUG
+                request.testDevices = [ kGADSimulatorID, "7a469c1981e8bca25f9c3f11270f66ec" ] // in debug mode set your device as a test device so AdMob doesn't suspend our account (each dev needs to add their device ID)
+            #endif
+            self.bannerView.load(request)
         }
     }
 
@@ -47,7 +77,8 @@ class MainScreenViewController: UIViewController, MapDetailAnimationManager {
         return false
     }
     
-    @IBAction func userPressedRouteButton(_ sender: Any) {
+    @IBAction func userPressedRouteButton(_ sender: UIButton) {
+        sender.isSelected = !sender.isSelected
         if let vc = self.mapDetailVC {
             vc.toggleRouteMode()
         }
@@ -57,14 +88,16 @@ class MainScreenViewController: UIViewController, MapDetailAnimationManager {
     public func animateDetailViewController(expand: Bool) {
         let height : CGFloat
         if expand {
-            height = (2.0/3)*self.view.frame.size.height
+            height = 0.4*self.view.frame.size.height
         } else {
             height = DETAIL_VIEW_HEIGHT
         }
         self.detailViewHeightConstraint.constant = height
         UIView.animate(withDuration: 0.25, animations: {
+            self.mapVC?.setPadding(with: height)
             self.view.layoutIfNeeded()
             self.detailContainerView.layoutIfNeeded()
+            self.mapContainerView.layoutIfNeeded()
         }) { (finished) in
             
         }
@@ -82,5 +115,17 @@ class MainScreenViewController: UIViewController, MapDetailAnimationManager {
         // Pass the selected object to the new view controller.
     }
     */
+    
+    // MARK: - GADBannerViewDelegate
+    
+    func adViewDidReceiveAd(_ bannerView: GADBannerView) {
+        print("banner received ad")
+        self.moveAdToBottom()
+    }
+    
+    func adView(_ bannerView: GADBannerView, didFailToReceiveAdWithError error: GADRequestError) {
+        print("Fail to receive ads")
+        print(error)
+    }
 
 }

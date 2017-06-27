@@ -6,7 +6,6 @@ pod 'KeychainAccess', :git => 'https://github.com/kishikawakatsumi/KeychainAcces
 pod 'RealmSwift'
 pod 'Whisper', :git => 'https://github.com/hyperoslo/Whisper.git'
 pod 'NVActivityIndicatorView'
-pod 'Instructions', :git => 'https://github.com/ephread/Instructions.git'
 pod 'GoogleMaps'
 pod 'GooglePlaces'
 pod 'Firebase/Core'
@@ -16,6 +15,7 @@ pod 'Firebase/Auth'
 pod 'Firebase/Messaging'
 pod 'Fabric'
 pod 'Crashlytics'
+pod 'Google-Mobile-Ads-SDK'
 end
 
 post_install do |installer|

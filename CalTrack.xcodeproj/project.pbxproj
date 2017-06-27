@@ -8,17 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		069EA2131EDB725500A31BD6 /* caltrainTimes.realm in Resources */ = {isa = PBXBuildFile; fileRef = 069EA2121EDB71DE00A31BD6 /* caltrainTimes.realm */; };
-		06AA60401EDE219500869688 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06AA603F1EDE219500869688 /* GoogleService-Info.plist */; };
 		06B40CD31EDA50A500BA4A0F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F737A1A1EDA3302006628BF /* AppDelegate.swift */; };
 		06B40CD61EDA50B400BA4A0F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F737A201EDA3302006628BF /* Main.storyboard */; };
 		06B40CD71EDA50B900BA4A0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F737A231EDA3302006628BF /* Assets.xcassets */; };
 		06B40CD81EDA50BC00BA4A0F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F737A251EDA3302006628BF /* LaunchScreen.storyboard */; };
-		06B40CD91EDA50BF00BA4A0F /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2F737A281EDA3302006628BF /* Info.plist */; };
 		06CB05DD1EDA528A00354E4E /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CB05DC1EDA528A00354E4E /* MapViewController.swift */; };
 		06CB05DF1EDA52A100354E4E /* MapDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CB05DE1EDA52A100354E4E /* MapDetailViewController.swift */; };
 		06CB06001EDA631D00354E4E /* RealmModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CB05FF1EDA631D00354E4E /* RealmModels.swift */; };
 		06CB06021EDA666300354E4E /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CB06011EDA666300354E4E /* TabBarViewController.swift */; };
-		06F81E271EE61D2C00525C2D /* SensitiveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06F81E261EE61D2C00525C2D /* SensitiveData.swift */; };
 		2F11D18B1EDA5A3F003BB09B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F11D18A1EDA5A3F003BB09B /* Constants.swift */; };
 		2F11D18D1EDA722F003BB09B /* DataServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F11D18C1EDA722F003BB09B /* DataServer.swift */; };
 		2F11D18F1EDA80E0003BB09B /* ScheduleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F11D18E1EDA80E0003BB09B /* ScheduleViewController.swift */; };
@@ -27,18 +24,18 @@
 		2F11D1951EDAA5EE003BB09B /* NorthSouthDeparturesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F11D1941EDAA5EE003BB09B /* NorthSouthDeparturesTableViewCell.swift */; };
 		2F11D1991EDAD48C003BB09B /* MainScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F11D1981EDAD48C003BB09B /* MainScreenViewController.swift */; };
 		2FCF76541EE4F7DF0026B1E9 /* TripTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCF76531EE4F7DF0026B1E9 /* TripTableViewCell.swift */; };
+		729CCB051EFF08DD003A2440 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 729CCB041EFF08DD003A2440 /* GoogleService-Info.plist */; };
+		729CCB071EFF08EE003A2440 /* SensitiveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 729CCB061EFF08EE003A2440 /* SensitiveData.swift */; };
 		F79832341109B29D64A0C3AB /* Pods_CalTrack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE0A5EEC30AD58DFAC4FEE13 /* Pods_CalTrack.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		069EA2121EDB71DE00A31BD6 /* caltrainTimes.realm */ = {isa = PBXFileReference; lastKnownFileType = file; path = caltrainTimes.realm; sourceTree = "<group>"; };
-		06AA603F1EDE219500869688 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		06AA60421EDE4A9D00869688 /* CalTrack.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalTrack.entitlements; sourceTree = "<group>"; };
 		06CB05DC1EDA528A00354E4E /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		06CB05DE1EDA52A100354E4E /* MapDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapDetailViewController.swift; sourceTree = "<group>"; };
 		06CB05FF1EDA631D00354E4E /* RealmModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmModels.swift; sourceTree = "<group>"; };
 		06CB06011EDA666300354E4E /* TabBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
-		06F81E261EE61D2C00525C2D /* SensitiveData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensitiveData.swift; sourceTree = "<group>"; };
 		2F11D18A1EDA5A3F003BB09B /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		2F11D18C1EDA722F003BB09B /* DataServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataServer.swift; sourceTree = "<group>"; };
 		2F11D18E1EDA80E0003BB09B /* ScheduleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleViewController.swift; sourceTree = "<group>"; };
@@ -54,6 +51,8 @@
 		2F737A281EDA3302006628BF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2FCF76531EE4F7DF0026B1E9 /* TripTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TripTableViewCell.swift; sourceTree = "<group>"; };
 		326761B2A9492146E1CCE6F2 /* Pods-CalTrack.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CalTrack.release.xcconfig"; path = "Pods/Target Support Files/Pods-CalTrack/Pods-CalTrack.release.xcconfig"; sourceTree = "<group>"; };
+		729CCB041EFF08DD003A2440 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		729CCB061EFF08EE003A2440 /* SensitiveData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensitiveData.swift; sourceTree = "<group>"; };
 		D8EDB87EA409300049CCA0E1 /* Pods-CalTrack.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CalTrack.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CalTrack/Pods-CalTrack.debug.xcconfig"; sourceTree = "<group>"; };
 		FE0A5EEC30AD58DFAC4FEE13 /* Pods_CalTrack.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CalTrack.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -118,16 +117,16 @@
 				2F11D1921EDA83B7003BB09B /* ScheduleFooterView.swift */,
 				2F11D18A1EDA5A3F003BB09B /* Constants.swift */,
 				06CB06011EDA666300354E4E /* TabBarViewController.swift */,
-				06CB05DE1EDA52A100354E4E /* MapDetailViewController.swift */,
 				2FCF76531EE4F7DF0026B1E9 /* TripTableViewCell.swift */,
+				06CB05DE1EDA52A100354E4E /* MapDetailViewController.swift */,
 				2F11D1941EDAA5EE003BB09B /* NorthSouthDeparturesTableViewCell.swift */,
 				06CB05DC1EDA528A00354E4E /* MapViewController.swift */,
 				2F11D18C1EDA722F003BB09B /* DataServer.swift */,
-				06F81E261EE61D2C00525C2D /* SensitiveData.swift */,
+				729CCB061EFF08EE003A2440 /* SensitiveData.swift */,
 				2F737A231EDA3302006628BF /* Assets.xcassets */,
 				2F737A251EDA3302006628BF /* LaunchScreen.storyboard */,
+				729CCB041EFF08DD003A2440 /* GoogleService-Info.plist */,
 				2F737A281EDA3302006628BF /* Info.plist */,
-				06AA603F1EDE219500869688 /* GoogleService-Info.plist */,
 				069EA2121EDB71DE00A31BD6 /* caltrainTimes.realm */,
 			);
 			path = CalTrack;
@@ -164,7 +163,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Andrew Bihl";
 				TargetAttributes = {
 					2F737A161EDA3302006628BF = {
@@ -206,12 +205,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F11D1911EDA82BE003BB09B /* ScheduleFooterView.xib in Resources */,
-				06B40CD91EDA50BF00BA4A0F /* Info.plist in Resources */,
 				069EA2131EDB725500A31BD6 /* caltrainTimes.realm in Resources */,
 				06B40CD81EDA50BC00BA4A0F /* LaunchScreen.storyboard in Resources */,
 				06B40CD61EDA50B400BA4A0F /* Main.storyboard in Resources */,
-				06AA60401EDE219500869688 /* GoogleService-Info.plist in Resources */,
 				06B40CD71EDA50B900BA4A0F /* Assets.xcassets in Resources */,
+				729CCB051EFF08DD003A2440 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,7 +241,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		B43086F210C557B2C47CD285 /* [CP] Copy Pods Resources */ = {
@@ -287,10 +285,10 @@
 				06CB06001EDA631D00354E4E /* RealmModels.swift in Sources */,
 				06CB05DF1EDA52A100354E4E /* MapDetailViewController.swift in Sources */,
 				2F11D1951EDAA5EE003BB09B /* NorthSouthDeparturesTableViewCell.swift in Sources */,
+				729CCB071EFF08EE003A2440 /* SensitiveData.swift in Sources */,
 				2F11D18D1EDA722F003BB09B /* DataServer.swift in Sources */,
 				2F11D1991EDAD48C003BB09B /* MainScreenViewController.swift in Sources */,
 				2F11D18F1EDA80E0003BB09B /* ScheduleViewController.swift in Sources */,
-				06F81E271EE61D2C00525C2D /* SensitiveData.swift in Sources */,
 				06CB06021EDA666300354E4E /* TabBarViewController.swift in Sources */,
 				2F11D1931EDA83B7003BB09B /* ScheduleFooterView.swift in Sources */,
 				06B40CD31EDA50A500BA4A0F /* AppDelegate.swift in Sources */,
@@ -330,7 +328,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -338,7 +338,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -380,7 +384,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -388,7 +394,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -420,12 +430,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = CalTrack/CalTrack.entitlements;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 4EU7KH7ZUS;
 				INFOPLIST_FILE = CalTrack/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pauca.CalTrack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
@@ -435,12 +448,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = CalTrack/CalTrack.entitlements;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 4EU7KH7ZUS;
 				INFOPLIST_FILE = CalTrack/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pauca.CalTrack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};

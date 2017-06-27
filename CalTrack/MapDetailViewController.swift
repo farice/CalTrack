@@ -10,7 +10,10 @@ import UIKit
 
 protocol InformingDelegate {
     func valueChangedFromLoc() -> Stop?
-    func valueChangedFromTap(with stop: Stop) -> Stop?
+    func valueChangedFromUserSelection(with stop: Stop, didTapStopOnMap: Bool) -> Stop?
+    func setPadding(with height: CGFloat)
+    func drawPathWithStops(origin: Stop, destination: Stop)
+    func switchedOutOfRouteMode()
 }
 
 protocol MapDetailAnimationManager {
@@ -26,18 +29,28 @@ protocol MapDetailAnimationManager {
     func userSwipedDown(vc: MapDetailViewController)->Bool
 }
 
-class MapDetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class MapDetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UIGestureRecognizerDelegate {
     var delegate: InformingDelegate?
     
     // Parent view exists just for separation in the Interface Builder
     @IBOutlet var tableParentView: UIView!
     @IBOutlet var tableView: UITableView!
+    @IBOutlet var stopPickerView: UIPickerView!
     
+    @IBOutlet var pickerViewTapRecognizer: UITapGestureRecognizer!
     @IBOutlet var stopsStackView: UIStackView!
     @IBOutlet var toLabel: UILabel!
     @IBOutlet var originStopButton: UIButton!
     @IBOutlet var destinationStopButton: UIButton!
-    
+    // To indicate which stop label was selected. May be nil.
+    var lastSelectedStopButton : UIButton? {
+        didSet {
+            oldValue?.setTitleColor(oldValue?.tintColor, for: .normal)
+            if let button = lastSelectedStopButton {
+                button.setTitleColor(STOP_BUTTON_SELECTED_COLOR, for: .normal)
+            }
+        }
+    }
     @IBOutlet var northboundLabel: UILabel!
     @IBOutlet var southboundLabel: UILabel!
     
@@ -47,7 +60,14 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     var swipeDown : UIGestureRecognizer?
     var tapBanner : UIGestureRecognizer?
     
-    private let CELL_HEIGHT : CGFloat = 50
+    let GENERAL_BACKGROUND_COLOR = #colorLiteral(red: 0.7960784314, green: 0.7960784314, blue: 0.7960784314, alpha: 0.898870114)
+    let EVEN_ROW_BACKGROUND_COLOR = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.2544661034)
+    let STOP_BUTTON_SELECTED_COLOR = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+    let LINE_COLOR = UIColor.darkGray
+    let LINE_THICKNESS : CGFloat = 0.5
+    
+    private let NORTH_SOUTH_CELL_HEIGHT : CGFloat = 50
+    private let ROUTE_CELL_HEIGHT : CGFloat = 65
     
     public var northDepartures = [Int]()
     public var southDepartures = [Int]()
@@ -65,10 +85,10 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     private var southStop : Stop
     
-    private var fromStop: Stop{ // when the user's current location changes we want to change the default from stop
+    private var originStop: Stop{ // when the user's current location changes we want to change the default from stop
         didSet {
             if (self.isViewLoaded && (self.view.window != nil)) && inRouteMode {
-                self.originStopButton.setTitle(fromStop.stopName.replacingOccurrences(of: "Northbound", with: ""), for: .normal)
+                self.originStopButton.setTitle(originStop.stopName.replacingOccurrences(of: "Northbound", with: ""), for: .normal)
             }
         }
     }
@@ -82,9 +102,6 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     
     private var tripTimes : [(departureTime: Int, arrivalTime: Int)]?
     
-    private let BORDER_WIDTH : CGFloat = 1.5
-    private let BORDER_COLOR : CGColor = appColor1.cgColor
-    
     public var isExpanded = false {
         didSet {
             self.tableView.reloadData()
@@ -96,7 +113,7 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     
     required init?(coder aDecoder: NSCoder) {
         northStop = defaultNorthStop
-        fromStop = defaultNorthStop
+        originStop = defaultNorthStop
         
         southStop = defaultSouthStop
         destinationStop = defaultSouthStop
@@ -106,7 +123,7 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     
     init() {
         northStop = defaultNorthStop
-        fromStop = defaultNorthStop
+        originStop = defaultNorthStop
         
         southStop = defaultSouthStop
         destinationStop = defaultSouthStop
@@ -120,9 +137,13 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
         
         tableView.delegate = self
         tableView.dataSource = self
+        stopPickerView.dataSource = self
+        stopPickerView.delegate = self
+        pickerViewTapRecognizer.delegate = self
         tableParentView.addSubview(tableView)
-        self.originStopButton.isUserInteractionEnabled = false
-        self.destinationStopButton.isUserInteractionEnabled = false
+        tableParentView.addSubview(stopPickerView)
+//        self.originStopButton.isUserInteractionEnabled = false
+//        self.destinationStopButton.isUserInteractionEnabled = false
         
 //        tableView.frame = tableParentView.frame
         
@@ -134,14 +155,12 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
 
     override func viewWillAppear(_ animated: Bool) {
         self.tableView.frame = self.tableParentView.bounds
-        self.view.backgroundColor = appColor2
-        self.tableView.backgroundColor = appColor2
-        self.view.layer.borderWidth = 3
-        self.view.layer.borderColor = BORDER_COLOR
-        self.northboundLabel.layer.borderWidth = BORDER_WIDTH
-        self.southboundLabel.layer.borderWidth = BORDER_WIDTH
-        self.northboundLabel.layer.borderColor = BORDER_COLOR
-        self.southboundLabel.layer.borderColor = BORDER_COLOR
+        self.stopPickerView.frame = self.tableParentView.bounds
+        stopPickerView.isHidden = true
+        tableView.backgroundColor = GENERAL_BACKGROUND_COLOR
+        self.drawLineInView(view: self.view, startingPoint: CGPoint(x:0, y:0), length: self.view.frame.width, horizontal: true, thickness: LINE_THICKNESS, color: LINE_COLOR)
+        let midHeaderOrigin = CGPoint(x: 0.0, y: 0.0 + self.stopsStackView.frame.height - 2)
+        self.drawLineInView(view: self.view, startingPoint: midHeaderOrigin, length: self.view.frame.width, horizontal: true, thickness: LINE_THICKNESS, color: LINE_COLOR)
         self.tableView.reloadData()
     }
     
@@ -180,8 +199,8 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
 
     }
     
-    public func updateFromStop(from stop: Stop) {
-        self.fromStop = stop
+    public func updateOriginStop(from stop: Stop) {
+        self.originStop = stop
         retrieveTripTimes()
     }
     
@@ -196,8 +215,7 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     private func retrieveTripTimes(){
-        // TODO: Get the trip times t
-        self.tripTimes = self.sharedInstance.getTripTimes(fromStop: self.fromStop, toStop: self.destinationStop) // wouldn't actually matter if we fed in north or south as from
+        self.tripTimes = self.sharedInstance.getTripTimes(fromStop: self.originStop, toStop: self.destinationStop) // wouldn't actually matter if we fed in north or south as from
     
     }
     
@@ -207,8 +225,10 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
             self.stopsStackView.addArrangedSubview(destinationStopButton)
             self.northboundLabel.text = "Depart time"
             self.southboundLabel.text = "Arrival time"
-            self.updateFromStop(from: self.fromStop)
+            self.updateOriginStop(from: self.originStop)
             self.updateDestinationStop(to: self.destinationStop)
+            
+            self.delegate?.drawPathWithStops(origin: self.originStop, destination: self.destinationStop)
         }
         else {
             self.toLabel.removeFromSuperview()
@@ -217,6 +237,8 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
 //            self.stopsStackView.removeArrangedSubview(destinationStopButton)
             self.northboundLabel.text = "Northbound"
             self.southboundLabel.text = "Southbound"
+            
+            self.delegate?.switchedOutOfRouteMode()
         }
         inRouteMode = !inRouteMode
         tableView.reloadData()
@@ -244,56 +266,85 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
                 isExpanded = !isExpanded
                 self.tableView.setContentOffset(CGPoint.zero, animated: false)
             }
+            self.dismissPickerView()
         }
     }
     
     
-    @IBAction func userTappedOriginStop(_ sender: Any) {
-        
+    @IBAction func userTappedOriginStop(_ sender: UIButton) {
+        if self.lastSelectedStopButton == sender {
+            dismissPickerView()
+            return
+        }
+        presentPickerView(selectedButton: sender)
+        self.userSwipedUp()
     }
     
-    @IBAction func userTappedDestinationStop(_ sender: Any) {
-        
+    @IBAction func userTappedDestinationStop(_ sender: UIButton) {
+        if self.lastSelectedStopButton == sender {
+            dismissPickerView()
+            return
+        }
+        presentPickerView(selectedButton: sender)
+        self.userSwipedUp()
+    }
+    
+    func userDidTapMap() {
+        if !self.stopPickerView.isHidden {
+            self.userSwipedDown()
+        }
+    }
+    
+    @IBAction func userTappedPickerView(_ sender: UITapGestureRecognizer) {
+        self.userSwipedDown()
     }
     
     
     // MARK: - Table View Functions
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row == 0 {
+        let cell = self.cellTypeForRow(index: indexPath.row)
+        if indexPath.row % 2 == 0 {
+            cell.backgroundColor = EVEN_ROW_BACKGROUND_COLOR
+        } else {
+            cell.backgroundColor = UIColor.clear
+        }
+        return cell
+    }
+    
+    private func cellTypeForRow(index: Int)->UITableViewCell {
+        if index == 0 {
             let noRows = (inRouteMode && (tripTimes == nil || tripTimes!.count <= 0)) ||
                 (!inRouteMode && max(self.northDepartures.count, self.southDepartures.count)<=0)
             if noRows {
                 if let cell : UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "NoTimesCell") {
-                    cell.contentView.layer.borderColor = BORDER_COLOR
-                    cell.contentView.layer.borderWidth = BORDER_WIDTH
                     return cell
                 }
             }
         }
         
         if inRouteMode {
-            if let times = self.tripTimes?[indexPath.row], let cell : TripTableViewCell = tableView.dequeueReusableCell(withIdentifier: "TripCell") as? TripTableViewCell {
+            if let times = self.tripTimes?[index], let cell : TripTableViewCell = tableView.dequeueReusableCell(withIdentifier: "TripCell") as? TripTableViewCell {
                 if times.arrivalTime.timeRemaining.hours < 0 || times.departureTime.timeRemaining.hours < 0 {
                     retrieveTripTimes()
                     tableView.reloadData()
                 }
-                cell.setTripTimes(departure: times.departureTime, arrival: times.arrivalTime, origin: self.fromStop, destination: self.destinationStop)
+                cell.setTripTimes(departure: times.departureTime, arrival: times.arrivalTime, origin: self.originStop, destination: self.destinationStop)
                 return cell
             }
         }
         else if let cell : NorthSouthDeparturesTableViewCell = tableView.dequeueReusableCell(withIdentifier: "NorthSouthCell") as? NorthSouthDeparturesTableViewCell {
             
-            if northDepartures.count > indexPath.row {
-                let departureTime = northDepartures[indexPath.row]
+            if northDepartures.count > index {
+                let departureTime = northDepartures[index]
                 if departureTime.timeRemaining.hours < 0 {
                     self.retrieveDepartureTimes()
                     tableView.reloadData()
                 }
                 cell.setDepartureTime(time: departureTime, north: true)
             }
-            if southDepartures.count > indexPath.row {
-                let departureTime = southDepartures[indexPath.row]
+            if southDepartures.count > index {
+                let departureTime = southDepartures[index]
                 if departureTime.timeRemaining.hours < 0 {
                     self.retrieveDepartureTimes()
                     tableView.reloadData()
@@ -309,12 +360,12 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
         if (!isExpanded) {
             return tableView.frame.height
         }
-        return CELL_HEIGHT
+        return inRouteMode ? ROUTE_CELL_HEIGHT : NORTH_SOUTH_CELL_HEIGHT
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return inRouteMode ? self.tripTimes?.count ?? 0 : max(northDepartures.count, southDepartures.count, 1)
+        return inRouteMode ? max(self.tripTimes?.count ?? 1, 1) : max(northDepartures.count, southDepartures.count, 1)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -325,7 +376,7 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
         
     }
     
-    func beginUpdateTimer(intervalInSeconds: Int){
+    func beginUpdateTimer(intervalInSeconds: Int) {
         Timer.scheduledTimer(withTimeInterval: TimeInterval(intervalInSeconds), repeats: true) { (timer) in
             print("Reload table")
             self.tableView.reloadData()
@@ -333,7 +384,96 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     
+    
+    // MARK: - UIPickerView
+    private func presentPickerView(selectedButton sender: UIButton?) {
+        if let selectedButton = sender {
+            self.lastSelectedStopButton = selectedButton
+        }
+        self.stopPickerView.isHidden = false
+        self.tableView.isHidden = true
+        let stopToModify : Stop
+        if lastSelectedStopButton == self.originStopButton {
+            stopToModify = inRouteMode ? self.originStop : self.northStop
+        } else {
+            stopToModify = self.destinationStop
+        }
+        let row = stopToModify.rawValue / 2
+        self.stopPickerView.selectRow(row, inComponent: 0, animated: false)
+    }
+    
+    private func dismissPickerView() {
+        self.tableView.isHidden = false
+        self.stopPickerView.isHidden = true
+        self.lastSelectedStopButton = nil
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return Stop.getStops(headingNorth: true).count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return Stop.getStops(headingNorth: true)[row].stopName.replacingOccurrences(of: "Northbound", with: "")
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        return 25
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let northStop = Stop.getStops(headingNorth: true)[row]
+        if !inRouteMode {
+            self.updateStops(northStop: northStop, southStop: Stop.getStops(headingNorth: false)[row])
+            self.delegate?.valueChangedFromUserSelection(with: northStop, didTapStopOnMap: false)
+        }
+        else {
+            if lastSelectedStopButton == self.originStopButton {
+                self.updateOriginStop(from: northStop)
+                self.delegate?.valueChangedFromUserSelection(with: northStop, didTapStopOnMap: false)
+                
+            } else if lastSelectedStopButton == self.destinationStopButton {
+                self.updateDestinationStop(to: Stop.getStops(headingNorth: true)[row])
+            } else {
+                print("LastSelectedStop is not set. Not sure how this happen.")
+            }
+            self.delegate?.drawPathWithStops(origin: self.originStop, destination: self.destinationStop)
+        }
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // A tap and a slight drag can be mixed up, so if the user picks the nearest stop in the
+        // picker view it can be misconstrued as a tap (which dismisses the picker). The following 
+        // logic will in most cases recognize if the picker has been moved to select a new stop 
+        // and if so will disregard the tap to dismiss.
+        let stopDisplayed : Stop
+        if lastSelectedStopButton == originStopButton {
+            stopDisplayed = inRouteMode ? self.originStop : self.northStop
+        } else {
+            stopDisplayed = destinationStop
+        }
+        let stopSelected : Stop = Stop.getStops(headingNorth: true)[stopPickerView.selectedRow(inComponent: 0)]
+        print("Displayed stop: \(stopDisplayed) (\(stopDisplayed.rawValue))")
+        print("Selected stop: \(stopSelected) (\(stopSelected.rawValue))")
+        var isSameStop = stopSelected == stopDisplayed
+        if !isSameStop {
+            if let partner = stopSelected.stopPartner {
+                if partner == stopDisplayed {
+                    isSameStop = true
+                }
+            }
+        }
+        return isSameStop
+    }
+    
     // MARK: - Delegation
+    
+    func getHeight() {
+        self.delegate?.setPadding(with: self.view.frame.height)
+    }
     
     func closestStopChanged() {
         if let value = self.delegate?.valueChangedFromLoc() {
@@ -342,9 +482,12 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
             let north = value.stopIsNorth ? value : value.stopPartner
             let south = value.stopIsNorth ? value.stopPartner : value
             if let north = north, let south = south {
-                self.updateFromStop(from: north)
+                self.updateOriginStop(from: north)
                 self.updateStops(northStop: north, southStop: south)
                 self.tableView.reloadData()
+                if inRouteMode {
+                    self.delegate?.drawPathWithStops(origin: self.originStop, destination: self.destinationStop)
+                }
             }
             
         } else{
@@ -353,7 +496,7 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     func stopTappedChanged(with stop: Stop) {
-        if let value = self.delegate?.valueChangedFromTap(with: stop) {
+        if let value = self.delegate?.valueChangedFromUserSelection(with: stop, didTapStopOnMap: true) {
             print("tapped stop changed", value)
             
             let north = value.stopIsNorth ? value : value.stopPartner
@@ -362,6 +505,10 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
                 self.updateDestinationStop(to: north)
                 self.updateStops(northStop: north, southStop: south)
                 self.tableView.reloadData()
+                
+                if inRouteMode {
+                    self.delegate?.drawPathWithStops(origin: self.originStop, destination: self.destinationStop)
+                }
             }
         } else{
             print("new tapped location, same nearest stop")
@@ -377,6 +524,19 @@ class MapDetailViewController: UIViewController, UITableViewDelegate, UITableVie
         let reportStop = self.northStop
         
         DataServer.sharedInstance.addPotentialDelay(to: reportStop)
+    }
+    
+    private func drawLineInView(view: UIView, startingPoint: CGPoint, length: CGFloat, horizontal: Bool, thickness: CGFloat, color: UIColor) {
+        let size: CGSize
+        if horizontal {
+            size = CGSize(width: length, height: thickness)
+        } else {
+            size = CGSize(width: thickness, height: length)
+        }
+        let line = CGRect(origin: startingPoint, size: size)
+        let lineView = UIView(frame: line)
+        lineView.backgroundColor = color
+        view.addSubview(lineView)
     }
     
     

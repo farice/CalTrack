@@ -22,6 +22,8 @@ class MapViewController: UIViewController, GMSMapViewDelegate {
     let defaultLocation = CLLocationCoordinate2D.defaultCoordinates
     var detailVC : MapDetailViewController?
     
+    var redRouteLine = GMSPolyline()
+    
     // Once the user has interacted with the map, don't refocus to his location + nearest stop again while the view is up.
     var userHasInteracted = false
     
@@ -100,8 +102,11 @@ class MapViewController: UIViewController, GMSMapViewDelegate {
         // delegate value sharing
         self.userHasInteracted = false
         let parent = self.parent!
-        detailVC = parent.childViewControllers[0] as? MapDetailViewController
+        detailVC = parent.childViewControllers[1] as? MapDetailViewController
         detailVC?.delegate = self
+        
+        detailVC?.getHeight()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -140,7 +145,7 @@ class MapViewController: UIViewController, GMSMapViewDelegate {
         if let stop = self.selectedStop {
             let current = Calendar.dateInMinutes
             
-        let (northStops, northTimes) = DataServer.sharedInstance.getNearestTrainLocation(with: stop, north: true)
+            let (northStops, northTimes) = DataServer.sharedInstance.getNearestTrainLocation(with: stop, north: true)
             
             print("added animated train")
             
@@ -148,43 +153,44 @@ class MapViewController: UIViewController, GMSMapViewDelegate {
             let unique = self.transactionID
             
             if northStops.count > 1 && northTimes.count > 1 {
-            northTrain?.map = nil
-            let northTrainLess = northStops[0].stopCoordinates
-            let northTrainMore = northStops[0].stopCoordinates
+                northTrain?.map = nil
+                let northTrainLess = northStops[0].stopCoordinates
+                let northTrainMore = northStops[1].stopCoordinates
                 let (latDiff, longDiff)  = (northTrainMore.latitude - northTrainLess.latitude, northTrainMore.longitude - northTrainLess.longitude)
-                let timeProp: Double = Double((current - northTimes[0]) / (northTimes[1] - northTimes[0]))
+                let timeProp = (Double(current - northTimes[0]) / Double(northTimes[1] - northTimes[0]))
                 let pos = CLLocationCoordinate2DMake(northTrainLess.latitude + timeProp * latDiff, northTrainLess.longitude + timeProp * longDiff)
-            northTrain = GMSMarker(position: pos)
-            northTrain?.icon = #imageLiteral(resourceName: "SpeedTrainSmall")
-            northTrain?.map = mapView
-            //northTrain?.iconView?.isUserInteractionEnabled = false
-            
+                
+                northTrain = GMSMarker(position: pos)
+                northTrain?.icon = #imageLiteral(resourceName: "SpeedTrainSmall")
+                northTrain?.map = mapView
+                //northTrain?.iconView?.isUserInteractionEnabled = false
+                
                 self.trainAnimation(stops: northStops, times: northTimes, current: current, first: true, north: true, transactionID: unique!)
-            
+                
             }
             
             
             if let stopPart = stop.stopPartner {
-            let (southStops, southTimes) = DataServer.sharedInstance.getNearestTrainLocation(with: stopPart, north: false)
-            
-            if southStops.count > 1 && southTimes.count > 1 {
-                southTrain?.map = nil
-                let southTrainLess = southStops[0].stopCoordinates
-                let southTrainMore = southStops[0].stopCoordinates
-                let (latDiff, longDiff)  = (southTrainMore.latitude - southTrainLess.latitude, southTrainMore.longitude - southTrainLess.longitude)
-                let timeProp: Double = Double((current - southTimes[0]) / (southTimes[1] - southTimes[0]))
-                let pos = CLLocationCoordinate2DMake(southTrainLess.latitude + timeProp * latDiff, southTrainLess.longitude + timeProp * longDiff)
-                southTrain = GMSMarker(position: pos)
-                southTrain?.icon = #imageLiteral(resourceName: "SpeedTrainSmall")
-                southTrain?.map = mapView
-                //southTrain.iconView?.isUserInteractionEnabled = false
+                let (southStops, southTimes) = DataServer.sharedInstance.getNearestTrainLocation(with: stopPart, north: false)
                 
-                self.trainAnimation(stops: southStops, times: southTimes, current: current, first: true, north: false, transactionID: unique!)
-                
-            }
+                if southStops.count > 1 && southTimes.count > 1 {
+                    southTrain?.map = nil
+                    let southTrainLess = southStops[0].stopCoordinates
+                    let southTrainMore = southStops[1].stopCoordinates
+                    let (latDiff, longDiff)  = (southTrainMore.latitude - southTrainLess.latitude, southTrainMore.longitude - southTrainLess.longitude)
+                    let timeProp = (Double(current - southTimes[0]) / Double(southTimes[1] - southTimes[0]))
+                    let pos = CLLocationCoordinate2DMake(southTrainLess.latitude + timeProp * latDiff, southTrainLess.longitude + timeProp * longDiff)
+                    southTrain = GMSMarker(position: pos)
+                    southTrain?.icon = #imageLiteral(resourceName: "SpeedTrainSmall")
+                    southTrain?.map = mapView
+                    //southTrain.iconView?.isUserInteractionEnabled = false
+                    
+                    self.trainAnimation(stops: southStops, times: southTimes, current: current, first: true, north: false, transactionID: unique!)
+                    
+                }
             }
             
-    }
+        }
         
     }
         
@@ -245,6 +251,10 @@ class MapViewController: UIViewController, GMSMapViewDelegate {
     */
   
     // MARK: GMSMapViewDelegate
+    
+    func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
+        self.detailVC?.userDidTapMap()
+    }
     
     func mapView(_ mapView: GMSMapView, willMove gesture: Bool) {
         if gesture {
@@ -356,6 +366,7 @@ extension MapViewController: CLLocationManagerDelegate {
 }
 
 extension MapViewController: InformingDelegate {
+    
     func valueChangedFromLoc() -> Stop? {
         if let stop = self.currentLocation?.getClosestStop {
             if stop != self.closestStop && stop != self.selectedStop {
@@ -379,15 +390,45 @@ extension MapViewController: InformingDelegate {
 
     }
     
-    func valueChangedFromTap(with stop: Stop) -> Stop? {
+    func valueChangedFromUserSelection(with stop: Stop, didTapStopOnMap shouldNotZoom: Bool) -> Stop? {
         if stop != self.selectedStop {
             self.selectedStop = stop
             self.addAnimatedTrain()
+            if !shouldNotZoom {
+                self.zoomToIncludeStop(stop)
+            }
             return stop
         }
         else {
             return nil
         }
+    }
+    
+    func drawPathWithStops(origin: Stop, destination: Stop) {
+        let path = GMSMutablePath()
+        
+        let stops = origin.stopsUntil(inclusive: destination)
+        
+        for stop in stops {
+            path.add(stop.stopCoordinates)
+        }
+        
+        redRouteLine.map = nil
+        redRouteLine.path = path
+        
+        redRouteLine.strokeColor = .red
+        redRouteLine.strokeWidth = 3
+        redRouteLine.map = mapView
+    }
+    
+    func switchedOutOfRouteMode() {
+        redRouteLine.map = nil
+    }
+    
+    public func setPadding(with height: CGFloat) {
+        // add padding
+        let mapInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: height + 0.0, right: 0.0)
+        mapView.padding = mapInsets
     }
 }
 
